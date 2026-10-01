@@ -1,8 +1,4 @@
-# =====================================================================
-#  Computer Vision Capstone Project — PPE Compliance Monitor
-#  Dataset → Preprocessing → CV Model → Detection/Classification →
-#  Result Visualization → Performance Evaluation → Final Application
-# =====================================================================
+
 
 project_name: "PPE Compliance Monitor"
 
