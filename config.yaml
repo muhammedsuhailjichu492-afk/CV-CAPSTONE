@@ -1,0 +1,56 @@
+# =====================================================================
+#  Computer Vision Capstone Project — PPE Compliance Monitor
+#  Dataset → Preprocessing → CV Model → Detection/Classification →
+#  Result Visualization → Performance Evaluation → Final Application
+# =====================================================================
+
+project_name: "PPE Compliance Monitor"
+
+# ---------------------------------------------------------------- 1. DATASET
+data:
+  name: construction-ppe
+  # Public Ultralytics Construction-PPE dataset (≈178 MB, 1,416 images, YOLO format, no API key)
+  url: https://github.com/ultralytics/assets/releases/download/v0.0.0/construction-ppe.zip
+  root: datasets/construction-ppe        # where it is unzipped
+  clean_root: datasets/construction-ppe-clean   # cleaned copy made by preprocessing
+  class_names: [helmet, gloves, vest, boots, goggles, none, Person,
+                no_helmet, no_goggle, no_gloves, no_boots]
+
+# ---------------------------------------------------------- 2. PREPROCESSING
+preprocess:
+  min_box_size: 0.004        # drop boxes smaller than this (normalized w or h) — label noise
+  imgsz: 640                 # model input size (letterbox resize)
+  check_duplicates: true     # find exact duplicate images across splits (data leakage check)
+
+# ---------------------------------------------------------------- 3. CV MODEL
+model:
+  weights: yolov8n.pt        # pretrained on COCO; try yolov8s.pt for more accuracy
+  imgsz: 640
+  epochs: 60
+  batch: 16                  # RTX 3050 (4 GB): 16 fits for yolov8n at 640; use 8 for yolov8s
+  patience: 15               # early stopping
+  workers: 2                 # keep low on Windows
+  device: auto               # auto → GPU 0 if CUDA is available, else CPU
+  seed: 42
+  run_name: ppe_yolov8n
+
+# -------------------------------------------- 4. DETECTION + CLASSIFICATION
+inference:
+  conf: 0.35
+  iou: 0.5
+
+compliance:
+  person_class: Person
+  # each required item: [positive class, negative class (or null)]
+  required:
+    helmet: [helmet, no_helmet]
+    vest:   [vest, null]
+  expand: 0.15               # grow the person box by 15% when matching PPE to a person
+
+# ------------------------------------------------------------- 7. APPLICATION
+app:
+  webcam_index: 0            # 0 = default camera (Iriun/phone webcams are often 1)
+
+paths:
+  outputs: outputs
+  runs: runs
